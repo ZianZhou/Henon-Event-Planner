@@ -2,6 +2,8 @@
 
 A modern event planning application featuring a list view, timeline view, drag-and-drop functionality, and advanced filtering capabilities for efficient event management.
 
+[![Event Planner Demo](https://img.youtube.com/vi/7mptbMhFqk4/0.jpg)](https://youtu.be/7mptbMhFqk4)
+
 ## Prerequisites
 
 - Node.js (v16 or higher)

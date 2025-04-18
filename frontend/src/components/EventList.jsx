@@ -1,4 +1,3 @@
-// src/components/EventList.jsx
 import React from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -10,7 +9,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { PencilIcon, Trash2Icon, GripVerticalIcon } from 'lucide-react';
 
-// Single sortable item component
 function SortableItem({ event, onEdit, onDelete }) {
   const {
     attributes,

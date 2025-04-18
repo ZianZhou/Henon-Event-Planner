@@ -1,4 +1,3 @@
-// src/components/EventTimeline.jsx
 import React from 'react';
 import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
@@ -33,9 +32,9 @@ export default function EventTimeline({ events }) {
           canMove={false}
           canResize={false}
           fullUpdate
-          sidebarWidth={150}      // wider sidebar
-          lineHeight={80}         // taller rows
-          itemHeightRatio={0.8}   // bigger bars
+          sidebarWidth={150}      
+          lineHeight={80}         
+          itemHeightRatio={0.8}   
         />
       </div>
     </div>

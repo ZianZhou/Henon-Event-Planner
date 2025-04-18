@@ -1,11 +1,9 @@
-// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import EventList from './components/EventList';
 import EventTimeline from './components/EventTimeline';
 import EventForm from './components/EventForm';
 
-// Point all axios calls to the Flask backend
 axios.defaults.baseURL = 'http://localhost:5000';
 
 export default function App() {
@@ -43,7 +41,6 @@ export default function App() {
     fetchEvents();
   }
 
-  // Updated onReorder: update client state immediately, persist in background
   async function onReorder(updated) {
     setEvents(updated);
     try {

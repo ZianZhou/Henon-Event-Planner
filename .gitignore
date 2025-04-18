@@ -1,0 +1,15 @@
+# Backend Python environment and cache
+backend/venv/
+backend/__pycache__/
+*.pyc
+
+# Frontend dependencies
+frontend/node_modules/
+
+# Build / cache 
+frontend/dist/
+frontend/.vite/
+
+# System & editor files
+.DS_Store
+.vscode/

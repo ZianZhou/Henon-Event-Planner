@@ -57,22 +57,32 @@ export default function App() {
       <div className="max-w-4xl mx-auto px-6">
         <header className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-extrabold text-blue-600">Event Planner</h1>
-          <nav className="space-x-2">
+          <nav className="flex items-center space-x-2">
             <button
               className={`px-4 py-1 rounded-lg ${
-                view === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+                view === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-blue-600'
               } shadow`}
-              onClick={() => setView('list')}
+              onClick={() => { setView('list'); setEditing(null); }}
             >
               List
             </button>
             <button
               className={`px-4 py-1 rounded-lg ${
-                view === 'timeline' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+                view === 'timeline'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-blue-600'
               } shadow`}
-              onClick={() => setView('timeline')}
+              onClick={() => { setView('timeline'); setEditing(null); }}
             >
               Timeline
+            </button>
+            <button
+              className="px-4 py-1 bg-green-500 text-white rounded-lg shadow hover:bg-green-600"
+              onClick={() => setEditing(null)}
+            >
+              New Event
             </button>
           </nav>
         </header>

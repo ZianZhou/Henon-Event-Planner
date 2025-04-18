@@ -1,71 +1,78 @@
 import React, { useState, useEffect } from 'react';
+import { XIcon } from 'lucide-react';
 
-function EventForm({ types, onSubmit, initialData, onCancel }) {
+export default function EventForm({ types, initialData, onSubmit, onCancel }) {
   const [title, setTitle] = useState('');
-  const [type, setType] = useState(types[0] || '');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [type, setType]   = useState(types[0]);
+  const [start, setStart] = useState('');
+  const [end, setEnd]     = useState('');
 
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title);
       setType(initialData.type);
-      setStartDate(initialData.startDate.slice(0,10));
-      setEndDate(initialData.endDate.slice(0,10));
+      setStart(initialData.startDate.slice(0,10));
+      setEnd(initialData.endDate.slice(0,10));
     } else {
-      setTitle('');
-      setType(types[0] || '');
-      setStartDate('');
-      setEndDate('');
+      setTitle(''); setType(types[0]); setStart(''); setEnd('');
     }
   }, [initialData, types]);
 
-  const handleSubmit = (e) => {
+  function handle(e) {
     e.preventDefault();
     if (!title) return alert('Title is required');
-    onSubmit({ title, type, startDate, endDate });
-  };
+    if (new Date(start) > new Date(end))
+      return alert('Start date must be before end date');
+    onSubmit({ title, type, startDate: start, endDate: end });
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 border p-4 rounded">
-      <div className="flex space-x-2 mb-2">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="border p-2 flex-grow"
-        />
-        <select value={type} onChange={(e) => setType(e.target.value)} className="border p-2">
-          {types.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
-      <div className="flex space-x-2 mb-2">
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="border p-2"
-        />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="border p-2"
-        />
-      </div>
-      <div className="flex space-x-2">
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          {initialData ? 'Update' : 'Create'}
+    <form
+      onSubmit={handle}
+      className="bg-white p-6 mb-8 rounded-lg shadow-lg relative"
+    >
+      {initialData && (
+        <button
+          type="button"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          onClick={onCancel}
+        >
+          <XIcon size={20}/>
         </button>
-        {initialData && (
-          <button type="button" onClick={onCancel} className="px-4 py-2 border rounded">
-            Cancel
-          </button>
-        )}
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          className="border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+          placeholder="Event Title"
+          value={title} onChange={e=>setTitle(e.target.value)}
+        />
+        <select
+          className="border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+          value={type} onChange={e=>setType(e.target.value)}
+        >
+          {types.map(t=>(
+            <option key={t}>{t}</option>
+          ))}
+        </select>
+        <input
+          type="date"
+          className="border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+          value={start} onChange={e=>setStart(e.target.value)}
+        />
+        <input
+          type="date"
+          className="border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+          value={end} onChange={e=>setEnd(e.target.value)}
+        />
       </div>
+
+      <button
+        type="submit"
+        className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        {initialData ? 'Update Event' : 'Create Event'}
+      </button>
     </form>
   );
 }
-
-export default EventForm;

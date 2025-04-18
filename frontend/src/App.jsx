@@ -4,105 +4,78 @@ import EventList from './components/EventList';
 import EventTimeline from './components/EventTimeline';
 import EventForm from './components/EventForm';
 
-function App() {
+export default function App() {
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('list');
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [filterText, setFilterText] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [q, setQ] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
+  useEffect(() => { fetchEvents(); }, []);
 
-  const fetchEvents = async () => {
+  async function fetchEvents() {
     try {
-      const res = await axios.get('http://localhost:5000/events');
-      setEvents(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      const { data } = await axios.get('http://localhost:5000/events');
+      setEvents(data);
+    } catch (e) { console.error(e); }
+  }
 
-  const handleCreate = async (data) => {
-    await axios.post('http://localhost:5000/events', data);
-    fetchEvents();
-  };
+  async function onCreate(d)  { await axios.post('/events', d); fetchEvents(); }
+  async function onUpdate(id, d) { await axios.put(`/events/${id}`, d); fetchEvents(); }
+  async function onDelete(id)   { await axios.delete(`/events/${id}`); fetchEvents(); }
+  async function onReorder(arr) { setEvents(arr); await axios.put('/events/reorder',{order:arr.map(e=>e.id)}); }
 
-  const handleUpdate = async (id, data) => {
-    await axios.put(`http://localhost:5000/events/${id}`, data);
-    fetchEvents();
-  };
-
-  const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/events/${id}`);
-    fetchEvents();
-  };
-
-  const handleReorder = async (newOrder) => {
-    setEvents(newOrder);
-    await axios.put('http://localhost:5000/events/reorder', { order: newOrder.map(e => e.id) });
-  };
-
-  const filteredEvents = events
-    .filter(e => e.title.toLowerCase().includes(filterText.toLowerCase()))
-    .filter(e => !filterType || e.type === filterType);
+  const filtered = events
+    .filter(e => e.title.toLowerCase().includes(q.toLowerCase()))
+    .filter(e => !typeFilter || e.type === typeFilter);
 
   return (
-    <div className="container mx-auto p-4">
-      <header className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Event Planner</h1>
-        <div>
-          <button onClick={() => setView('list')} className="mr-2 px-3 py-1 bg-gray-200 rounded">List View</button>
-          <button onClick={() => setView('timeline')} className="px-3 py-1 bg-gray-200 rounded">Timeline View</button>
+    <div className="min-h-screen bg-gray-100 py-10">
+      <div className="max-w-4xl mx-auto px-6">
+        <header className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-extrabold text-blue-600">Event Planner</h1>
+          <nav className="space-x-2">
+            <button
+              className={`px-4 py-1 rounded-lg ${view==='list' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'} shadow`}
+              onClick={()=>setView('list')}
+            >List</button>
+            <button
+              className={`px-4 py-1 rounded-lg ${view==='timeline'? 'bg-blue-600 text-white':'bg-white text-blue-600'} shadow`}
+              onClick={()=>setView('timeline')}
+            >Timeline</button>
+          </nav>
+        </header>
+
+        <EventForm
+          types={['Merger','Dividends','New Capital','Hire']}
+          initialData={editing}
+          onSubmit={editing ? d=>onUpdate(editing.id,d) : onCreate}
+          onCancel={()=>setEditing(null)}
+        />
+
+        <div className="flex space-x-3 mb-6">
+          <input
+            className="flex-grow border rounded-lg px-3 py-2 shadow-sm"
+            placeholder="Search titles..."
+            value={q} onChange={e=>setQ(e.target.value)}
+          />
+          <select
+            className="border rounded-lg px-3 py-2 shadow-sm"
+            value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}
+          >
+            <option value="">All Types</option>
+            <option>Merger</option>
+            <option>Dividends</option>
+            <option>New Capital</option>
+            <option>Hire</option>
+          </select>
         </div>
-      </header>
 
-      <EventForm
-        types={[
-          'Merger',
-          'Dividends',
-          'New Capital',
-          'Hire'
-        ]}
-        onSubmit={editingEvent ? (data) => handleUpdate(editingEvent.id, data) : handleCreate}
-        initialData={editingEvent}
-        onCancel={() => setEditingEvent(null)}
-      />
-
-      <div className="my-4 flex space-x-2">
-        <input
-          type="text"
-          placeholder="Search title..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          className="border p-2 flex-grow rounded"
-        />
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">All Types</option>
-          <option value="Merger">Merger</option>
-          <option value="Dividends">Dividends</option>
-          <option value="New Capital">New Capital</option>
-          <option value="Hire">Hire</option>
-        </select>
+        {view==='list'
+          ? <EventList events={filtered} onEdit={setEditing} onDelete={onDelete} onReorder={onReorder} />
+          : <EventTimeline events={filtered} />
+        }
       </div>
-
-      {view === 'list' ? (
-        <EventList
-          events={filteredEvents}
-          onEdit={setEditingEvent}
-          onDelete={handleDelete}
-          onReorder={handleReorder}
-        />
-      ) : (
-        <EventTimeline events={filteredEvents} />
-      )}
     </div>
   );
 }
-
-export default App;

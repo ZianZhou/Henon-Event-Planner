@@ -3,7 +3,15 @@ import Timeline from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
 import { parseISO } from 'date-fns';
 
-function EventTimeline({ events }) {
+export default function EventTimeline({ events }) {
+  if (events.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center text-gray-500">
+        No events to display.
+      </div>
+    );
+  }
+
   const items = events.map(e => ({
     id: e.id,
     group: 1,
@@ -14,15 +22,16 @@ function EventTimeline({ events }) {
   const groups = [{ id: 1, title: 'Events' }];
 
   return (
-    <div style={{ height: '300px' }}>
+    <div className="bg-white rounded-lg shadow-lg p-4">
       <Timeline
         groups={groups}
         items={items}
-        defaultTimeStart={new Date(Math.min(...items.map(i => i.start_time)))}
-        defaultTimeEnd={new Date(Math.max(...items.map(i => i.end_time)))}
+        defaultTimeStart={items[0].start_time}
+        defaultTimeEnd={items[items.length-1].end_time}
+        canMove={false}
+        canResize={false}
+        fullUpdate
       />
     </div>
   );
 }
-
-export default EventTimeline;

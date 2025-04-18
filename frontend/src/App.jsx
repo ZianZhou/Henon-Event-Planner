@@ -1,8 +1,12 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import EventList from './components/EventList';
 import EventTimeline from './components/EventTimeline';
 import EventForm from './components/EventForm';
+
+// Point all axios calls to the Flask backend
+axios.defaults.baseURL = 'http://localhost:5000';
 
 export default function App() {
   const [events, setEvents] = useState([]);
@@ -11,19 +15,38 @@ export default function App() {
   const [q, setQ] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   async function fetchEvents() {
     try {
-      const { data } = await axios.get('http://localhost:5000/events');
+      const { data } = await axios.get('/events');
       setEvents(data);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  async function onCreate(d)  { await axios.post('/events', d); fetchEvents(); }
-  async function onUpdate(id, d) { await axios.put(`/events/${id}`, d); fetchEvents(); }
-  async function onDelete(id)   { await axios.delete(`/events/${id}`); fetchEvents(); }
-  async function onReorder(arr) { setEvents(arr); await axios.put('/events/reorder',{order:arr.map(e=>e.id)}); }
+  async function onCreate(d) {
+    await axios.post('/events', d);
+    fetchEvents();
+  }
+
+  async function onUpdate(id, d) {
+    await axios.put(`/events/${id}`, d);
+    fetchEvents();
+  }
+
+  async function onDelete(id) {
+    await axios.delete(`/events/${id}`);
+    fetchEvents();
+  }
+
+  async function onReorder(arr) {
+    setEvents(arr);
+    await axios.put('/events/reorder', { order: arr.map(e => e.id) });
+  }
 
   const filtered = events
     .filter(e => e.title.toLowerCase().includes(q.toLowerCase()))
@@ -36,32 +59,42 @@ export default function App() {
           <h1 className="text-4xl font-extrabold text-blue-600">Event Planner</h1>
           <nav className="space-x-2">
             <button
-              className={`px-4 py-1 rounded-lg ${view==='list' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'} shadow`}
-              onClick={()=>setView('list')}
-            >List</button>
+              className={`px-4 py-1 rounded-lg ${
+                view === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+              } shadow`}
+              onClick={() => setView('list')}
+            >
+              List
+            </button>
             <button
-              className={`px-4 py-1 rounded-lg ${view==='timeline'? 'bg-blue-600 text-white':'bg-white text-blue-600'} shadow`}
-              onClick={()=>setView('timeline')}
-            >Timeline</button>
+              className={`px-4 py-1 rounded-lg ${
+                view === 'timeline' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+              } shadow`}
+              onClick={() => setView('timeline')}
+            >
+              Timeline
+            </button>
           </nav>
         </header>
 
         <EventForm
-          types={['Merger','Dividends','New Capital','Hire']}
+          types={['Merger', 'Dividends', 'New Capital', 'Hire']}
           initialData={editing}
-          onSubmit={editing ? d=>onUpdate(editing.id,d) : onCreate}
-          onCancel={()=>setEditing(null)}
+          onSubmit={editing ? d => onUpdate(editing.id, d) : onCreate}
+          onCancel={() => setEditing(null)}
         />
 
         <div className="flex space-x-3 mb-6">
           <input
             className="flex-grow border rounded-lg px-3 py-2 shadow-sm"
             placeholder="Search titles..."
-            value={q} onChange={e=>setQ(e.target.value)}
+            value={q}
+            onChange={e => setQ(e.target.value)}
           />
           <select
             className="border rounded-lg px-3 py-2 shadow-sm"
-            value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value)}
           >
             <option value="">All Types</option>
             <option>Merger</option>
@@ -71,10 +104,16 @@ export default function App() {
           </select>
         </div>
 
-        {view==='list'
-          ? <EventList events={filtered} onEdit={setEditing} onDelete={onDelete} onReorder={onReorder} />
-          : <EventTimeline events={filtered} />
-        }
+        {view === 'list' ? (
+          <EventList
+            events={filtered}
+            onEdit={setEditing}
+            onDelete={onDelete}
+            onReorder={onReorder}
+          />
+        ) : (
+          <EventTimeline events={filtered} />
+        )}
       </div>
     </div>
   );

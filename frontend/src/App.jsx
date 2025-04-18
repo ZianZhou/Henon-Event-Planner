@@ -43,9 +43,16 @@ export default function App() {
     fetchEvents();
   }
 
-  async function onReorder(arr) {
-    setEvents(arr);
-    await axios.put('/events/reorder', { order: arr.map(e => e.id) });
+  // Updated onReorder: update client state immediately, persist in background
+  async function onReorder(updated) {
+    setEvents(updated);
+    try {
+      await axios.put('/events/reorder', {
+        order: updated.map(e => e.id),
+      });
+    } catch (err) {
+      console.error('Failed to save new order', err);
+    }
   }
 
   const filtered = events
